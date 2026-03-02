@@ -283,11 +283,12 @@
     function startLatest() { showScreen(unlocked); }
     function retry() { showScreen(currentLvl); }
     function fail() { 
-        document.getElementById('fail-overlay').style.display = 'flex'; 
         clearInterval(gameLoop); 
+        document.getElementById('fail-overlay').style.display = 'flex'; 
     }
 
     function win() {
+        clearInterval(gameLoop);
         if(currentLvl === unlocked && unlocked < 13) {
             unlocked++;
             localStorage.setItem('joy_save_v3', unlocked);
@@ -337,8 +338,10 @@
     function setupL11() {
         const stone = document.getElementById('stone');
         const timerTxt = document.getElementById('timer-display');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
         
-        // Reset state on initialization
+        // Ensure strictly clean start
         let pos = 50;
         let vel = 0;
         let time = 0;
@@ -348,23 +351,31 @@
 
         const setVel = (v) => { vel = v; };
 
-        document.getElementById('left-btn').onmousedown = 
-        document.getElementById('left-btn').ontouchstart = (e) => { e.preventDefault(); setVel(-0.9); };
-        document.getElementById('right-btn').onmousedown = 
-        document.getElementById('right-btn').ontouchstart = (e) => { e.preventDefault(); setVel(0.9); };
+        // Remove old listeners just in case
+        leftBtn.onmousedown = leftBtn.ontouchstart = (e) => { e.preventDefault(); setVel(-0.9); };
+        rightBtn.onmousedown = rightBtn.ontouchstart = (e) => { e.preventDefault(); setVel(0.9); };
         
-        window.onmouseup = window.ontouchend = () => setVel(0);
+        // Global mouse up to handle dragging off buttons
+        const stopMoving = () => setVel(0);
+        window.onmouseup = window.ontouchend = stopMoving;
 
         gameLoop = setInterval(() => {
-            // Natural drift
-            pos += vel + (Math.random() - 0.5) * 0.6;
+            // Drift logic: current position + user velocity + random jitter
+            pos += vel + (Math.random() - 0.5) * 0.7;
             stone.style.left = pos + '%';
             
-            if(pos < 6 || pos > 94) fail();
+            // Check for boundaries
+            if(pos < 6 || pos > 94) {
+                fail();
+                return;
+            }
             
             time += 0.016;
             timerTxt.textContent = `TIME: ${time.toFixed(1)}s / 10s`;
-            if(time >= 10) win();
+            
+            if(time >= 10) {
+                win();
+            }
         }, 16);
     }
 
