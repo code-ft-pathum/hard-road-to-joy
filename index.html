@@ -1,796 +1,938 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>The Kaleidoscope of Life ✨</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&family=Playfair+Display:italic,wght@700&display=swap"
-    rel="stylesheet">
-  <style>
-    :root {
-      --sage: #9caf88;
-      --clay: #d4a373;
-      --cream: #faedcd;
-      --sky: #d4eaf7;
-      --gold: #e9edc6;
-      --text: #4a4e69;
-      --deep-blue: #1a1a2e;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>The Kaleidoscope of Life ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sage:#9caf88;--sage-dk:#7a9268;--sage-lt:#c4d4b8;
+  --clay:#d4a373;--clay-dk:#b8855a;
+  --cream:#faedcd;--cream-dk:#f0ddb0;--cream-md:#f5e8c0;
+  --sky:#d4eaf7;--sky-dk:#aacfe8;
+  --gold:#e9edc6;--gold-dk:#d0d590;
+  --rose:#f2b5c0;--rose-dk:#e08898;
+  --lav:#c9c4e8;
+  --text:#4a4e69;--text-lt:#7c809a;--text-mu:#a8abc2;
+  --white:#ffffff;
+  --sh:rgba(74,78,105,.1);--sh2:rgba(74,78,105,.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;user-select:none;}
+html,body{height:100%;width:100%;overflow:hidden;
+  background:var(--cream);font-family:'Quicksand',sans-serif;color:var(--text);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 38% at 5% 0%,rgba(156,175,136,.2) 0%,transparent 70%),
+    radial-gradient(ellipse 45% 35% at 95% 100%,rgba(212,163,115,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 40% at 85% 5%,rgba(212,234,247,.45) 0%,transparent 60%);}
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      font-family: 'Quicksand', sans-serif;
-      touch-action: manipulation;
-    }
+/* ── LAYOUT ── */
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+#app{width:min(100vw,430px);height:min(100vh,860px);background:#fff;
+  border-radius:clamp(0px,calc((100vw - 430px)*999),36px);
+  box-shadow:0 20px 70px var(--sh2);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;}
 
-    body {
-      background-color: var(--cream);
-      color: var(--text);
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+/* ── PROGRESS ── */
+#prog-wrap{height:4px;background:var(--cream);flex-shrink:0;overflow:hidden;}
+#prog-bar{height:100%;width:0%;transition:width .9s cubic-bezier(.4,0,.2,1);
+  background:linear-gradient(90deg,var(--sage),var(--clay),var(--rose));}
 
-    #app-canvas {
-      width: min(94vw, 420px);
-      height: min(90vh, 780px);
-      background: white;
-      border-radius: 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+/* ── TOPBAR ── */
+#topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 18px 5px;flex-shrink:0;}
+#ch-lbl{font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-mu);font-weight:600;}
+#st-lbl{font-size:.6rem;letter-spacing:1.5px;color:var(--text-mu);font-weight:600;}
 
-    .screen {
-      position: absolute;
-      inset: 0;
-      padding: 50px 25px 80px 25px;
-      /* Added bottom padding for footer */
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      animation: fadeIn 0.6s ease-out forwards;
-    }
+/* ── DOTS ── */
+#dots{display:flex;gap:4px;justify-content:center;padding:0 16px 7px;flex-shrink:0;flex-wrap:wrap;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--cream-dk);transition:.4s;}
+.dot.done{background:var(--sage-lt);}
+.dot.now{background:var(--sage);width:16px;border-radius:6px;}
 
-    .active {
-      display: flex;
-    }
+/* ── SCREENS ── */
+#host{flex:1;position:relative;overflow:hidden;min-height:0;}
+.sc{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:10px 20px 18px;display:none;flex-direction:column;
+  align-items:center;text-align:center;-webkit-overflow-scrolling:touch;}
+.sc.on{display:flex;animation:fadeUp .5s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(15px);
-      }
+/* ── TYPE ── */
+h1{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,5.5vw,1.95rem);
+  color:var(--sage);line-height:1.2;margin-bottom:8px;}
+.ctag{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--clay);font-weight:700;margin-bottom:3px;}
+.ctitle{font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(1.05rem,4vw,1.3rem);color:var(--text);margin-bottom:6px;}
+p.sub{font-size:clamp(.77rem,2.8vw,.88rem);color:#7b7f6a;line-height:1.55;
+  margin-bottom:10px;max-width:310px;}
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+/* ── BTN ── */
+.btn{background:var(--sage);color:#fff;border:none;
+  padding:clamp(11px,2.5vw,14px) clamp(20px,5vw,28px);
+  border-radius:30px;font-size:clamp(.84rem,2.8vw,.96rem);
+  font-family:'Quicksand',sans-serif;font-weight:700;cursor:pointer;
+  box-shadow:0 5px 18px rgba(156,175,136,.38);
+  transition:transform .18s,box-shadow .18s;margin-top:auto;flex-shrink:0;}
+.btn:active{transform:scale(.95);box-shadow:0 2px 8px rgba(156,175,136,.25);}
+.btn.hi{display:none;}
+.btn.clay{background:var(--clay);box-shadow:0 5px 18px rgba(212,163,115,.38);}
+.btn.rose{background:var(--rose-dk);box-shadow:0 5px 18px rgba(224,136,152,.38);}
+.btn.sm{padding:9px 18px;font-size:.82rem;margin-top:6px;}
+.btn.out{background:transparent;color:var(--sage);border:2px solid var(--sage);box-shadow:none;}
 
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-      color: var(--sage);
-    }
+/* ── GZ ── */
+.gz{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;position:relative;min-height:170px;max-height:310px;}
 
-    h2 {
-      font-size: 1.1rem;
-      color: var(--clay);
-      margin-bottom: 8px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+/* ── CARD ── */
+.card{background:var(--cream);border-radius:20px;padding:14px 16px;width:100%;
+  border:1px solid rgba(156,175,136,.18);box-shadow:0 3px 12px var(--sh);}
 
-    p {
-      font-size: 0.9rem;
-      line-height: 1.4;
-      color: #6b705c;
-      margin-bottom: 15px;
-    }
+/* ── FOOT ── */
+.foot{font-size:.7rem;color:var(--text-mu);text-align:center;
+  padding:5px 0 9px;flex-shrink:0;letter-spacing:.5px;}
 
-    .btn {
-      background: var(--sage);
-      color: white;
-      border: none;
-      padding: 14px 30px;
-      border-radius: 30px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(156, 175, 136, 0.4);
-      margin-top: auto;
-      transition: transform 0.2s, background 0.3s;
-    }
+/* ── TOAST ── */
+#toast{position:absolute;bottom:72px;left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--text);color:#fff;border-radius:20px;
+  padding:7px 16px;font-size:.79rem;font-weight:600;
+  opacity:0;transition:.3s;z-index:200;white-space:nowrap;pointer-events:none;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    .btn:active {
-      transform: scale(0.95);
-    }
+/* ── FLOATER ── */
+.fl{position:absolute;pointer-events:none;z-index:99;font-size:1.2rem;
+  animation:flUp 1.5s ease-out forwards;}
+@keyframes flUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-80px)}}
 
-    .footer {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 0.8rem;
-      color: #b5b5b5;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
+/* ══════════════ LEVEL STYLES ══════════════ */
 
-    /* Game Zone Styling */
-    .game-zone {
-      width: 100%;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 200px;
-    }
+/* L1 BREATH */
+#b-orb{width:clamp(108px,28vw,132px);height:clamp(108px,28vw,132px);
+  border-radius:50%;background:radial-gradient(circle at 32% 32%,var(--sky),var(--sky-dk));
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 8px 28px rgba(170,207,232,.5);position:relative;
+  transition:transform 4s cubic-bezier(.4,0,.2,1),background 4s;}
+#b-orb::after{content:'';position:absolute;inset:-11px;border-radius:50%;
+  border:1.5px solid rgba(170,207,232,.3);animation:orbRing 3s infinite;}
+#b-orb.big{transform:scale(1.62);background:radial-gradient(circle at 32% 32%,#a8dadc,#7ecec4);}
+@keyframes orbRing{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.07);opacity:.12}}
+#b-lbl{font-size:.7rem;letter-spacing:2px;color:var(--text);font-weight:700;pointer-events:none;}
+#b-ring-svg{position:absolute;width:150px;height:150px;}
 
-    /* Level 1: Breath */
-    #breath-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: var(--sky);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 3s ease-in-out, background-color 3s ease-in-out;
-    }
+/* L2 MEMORY */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:min(234px,70vw);}
+.mtile{aspect-ratio:1;border-radius:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.35rem,5vw,1.8rem);
+  background:var(--cream);border:2px solid var(--cream-dk);
+  box-shadow:0 3px 9px var(--sh);transition:all .17s;}
+.mtile:active{transform:scale(.91);}
+.mtile.flash{background:var(--sky);border-color:var(--sky-dk);transform:scale(1.09);
+  box-shadow:0 5px 18px rgba(170,207,232,.45);}
+.mtile.wrong{background:#fcd5d5;border-color:#e8a0a0;animation:shk .28s;}
+@keyframes shk{0%,100%{transform:translateX(0)}30%{transform:translateX(-7px)}70%{transform:translateX(7px)}}
 
-    .inhale {
-      transform: scale(1.6);
-      background-color: #a8dadc;
-    }
+/* L3 CONSTELLATION */
+#cssvg{width:100%;height:clamp(175px,46vw,225px);border-radius:18px;
+  background:radial-gradient(ellipse at center,#152040 0%,#050c1a 100%);cursor:pointer;}
 
-    /* Level 2: Better Growth UI */
-    .garden-scene {
-      width: 100%;
-      height: 220px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      margin-top: 40px;
-    }
+/* L4 RHYTHM */
+#beat-btn{width:clamp(108px,28vw,128px);height:clamp(108px,28vw,128px);border-radius:50%;
+  background:radial-gradient(circle at 32% 32%,var(--rose),var(--rose-dk));
+  border:none;font-size:clamp(1.9rem,5.5vw,2.5rem);cursor:pointer;
+  box-shadow:0 8px 26px rgba(224,136,152,.45);
+  display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+#beat-btn:active{transform:scale(.91);}
+.rpl{position:absolute;border-radius:50%;border:2px solid var(--rose-dk);
+  animation:rplAnim .9s ease-out forwards;pointer-events:none;}
+@keyframes rplAnim{from{width:128px;height:128px;opacity:.7}to{width:216px;height:216px;opacity:0}}
+#r-track{width:88%;height:8px;background:var(--cream-dk);border-radius:4px;margin-top:14px;overflow:hidden;}
+#r-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--rose),var(--clay));
+  border-radius:4px;transition:width .22s;}
 
-    #can-container {
-      position: absolute;
-      top: -40px;
-      right: 10%;
-      z-index: 10;
-      cursor: pointer;
-      font-size: 2.8rem;
-      transition: 0.3s;
-      padding: 10px;
-    }
+/* L5 FIREFLIES */
+#ffz{width:100%;height:clamp(175px,44vw,215px);border-radius:18px;
+  background:radial-gradient(ellipse at bottom,#1a2e1a,#060e07);
+  position:relative;overflow:hidden;}
+.ff{position:absolute;width:28px;height:28px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.95rem;
+  filter:drop-shadow(0 0 5px rgba(255,255,180,.7));
+  transition:left 1.2s ease-in-out,top 1.2s ease-in-out;}
+.ff.pop{animation:ffp .4s ease-out forwards;pointer-events:none;}
+@keyframes ffp{to{transform:scale(0) rotate(110deg);opacity:0}}
 
-    #pot {
-      width: 90px;
-      height: 60px;
-      background: #b5838d;
-      border-radius: 5px 5px 15px 15px;
-      position: relative;
-      z-index: 5;
-    }
+/* L6 CLOUDS */
+#sky-sc{width:100%;height:clamp(175px,44vw,215px);border-radius:18px;
+  background:linear-gradient(180deg,#f4a560,#ffc897 50%,var(--sky) 100%);
+  position:relative;overflow:hidden;}
+.cld{position:absolute;font-size:clamp(1.9rem,5.5vw,2.5rem);cursor:pointer;
+  transition:transform .45s,opacity .45s;filter:drop-shadow(0 3px 5px rgba(0,0,0,.12));}
+.cld.gone{transform:scale(0) translateY(-18px)!important;opacity:0;}
+#sun-icon{position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-size:clamp(2.4rem,7vw,3rem);transition:transform .75s cubic-bezier(.175,.885,.32,1.275);
+  filter:drop-shadow(0 0 14px #ffd700);}
+#sun-icon.show{transform:translate(-50%,-50%) scale(1);}
 
-    #flower-stem {
-      width: 5px;
-      height: 0;
-      background: #606c38;
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      transition: height 0.4s;
-      z-index: 2;
-    }
+/* L7 WORDS */
+#wrdz{width:100%;height:clamp(175px,44vw,215px);border-radius:18px;
+  background:linear-gradient(180deg,#ede4f5,#d8d0ee);
+  position:relative;overflow:hidden;}
+.wpill{position:absolute;cursor:pointer;padding:5px 11px;border-radius:18px;
+  font-size:clamp(.74rem,2.5vw,.88rem);font-weight:700;white-space:nowrap;
+  animation:wfall linear forwards;}
+.wpill.good{background:rgba(255,255,255,.88);color:var(--sage-dk);
+  border:1.5px solid rgba(156,175,136,.35);}
+.wpill.bad{background:rgba(200,200,212,.7);color:#9ea3b8;
+  border:1.5px solid rgba(158,163,184,.25);}
+.wpill.caught{animation:wpop .3s ease-out forwards!important;pointer-events:none;}
+@keyframes wfall{from{top:-34px}to{top:108%}}
+@keyframes wpop{to{transform:scale(2.2);opacity:0}}
 
-    #flower-head {
-      font-size: 2.5rem;
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
+/* L8 DRAW */
+#draw-cv{border-radius:15px;background:var(--cream);
+  border:1.5px solid var(--cream-dk);cursor:crosshair;touch-action:none;}
+.csw{width:clamp(25px,6vw,31px);height:clamp(25px,6vw,31px);border-radius:50%;
+  cursor:pointer;border:2.5px solid transparent;transition:.18s;flex-shrink:0;}
+.csw.on{border-color:var(--text);transform:scale(1.2);}
+.szbtn{background:var(--cream);border:1.5px solid var(--cream-dk);border-radius:9px;
+  padding:4px 8px;font-size:.71rem;font-family:'Quicksand',sans-serif;
+  font-weight:700;color:var(--text-lt);cursor:pointer;}
+.szbtn.on{background:var(--sage);color:#fff;border-color:var(--sage);}
 
-    /* Level 3: Stars */
-    #star-map {
-      width: 100%;
-      height: 260px;
-      background: var(--deep-blue);
-      border-radius: 20px;
-      position: relative;
-      overflow: hidden;
-    }
+/* L9 MAZE */
+#mwrap{background:var(--cream);border-radius:17px;padding:7px;box-shadow:0 3px 14px var(--sh);}
+#mcanv{display:block;border-radius:11px;}
+.dbtn{width:clamp(42px,10vw,50px);height:clamp(42px,10vw,50px);border-radius:13px;
+  background:var(--cream);border:1.5px solid var(--cream-dk);color:var(--text);
+  font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 8px var(--sh);transition:.14s;}
+.dbtn:active{background:var(--sage);color:#fff;transform:scale(.92);}
 
-    .star {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      transform: translate(-50%, -50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+/* L10 PIANO */
+.p-outer{background:var(--cream-dk);border-radius:17px;padding:9px;box-shadow:0 3px 14px var(--sh);}
+.pkeys{display:flex;gap:5px;align-items:flex-end;}
+.wk{width:clamp(33px,8vw,43px);height:clamp(88px,22vw,108px);
+  background:linear-gradient(180deg,#fafafa,#e6e6e6);border-radius:0 0 8px 8px;
+  cursor:pointer;border:1px solid #ccc;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;
+  position:relative;box-shadow:0 3px 5px rgba(0,0,0,.16);transition:.09s;}
+.wk:active,.wk.pr{transform:translateY(3px);}
+.wk.hl{box-shadow:0 0 12px rgba(212,163,115,.65),0 3px 5px rgba(0,0,0,.16);
+  background:linear-gradient(180deg,rgba(233,237,198,.75),#e6e6e6);}
+.bk{width:clamp(21px,5.2vw,27px);height:clamp(56px,14vw,70px);
+  background:linear-gradient(180deg,#333,#1a1a1a);border-radius:0 0 6px 6px;
+  cursor:pointer;position:absolute;top:0;right:-11px;z-index:2;
+  box-shadow:0 3px 7px rgba(0,0,0,.42);transition:.09s;}
+.bk:active,.bk.pr{transform:translateY(2px);}
+.wlbl{font-size:.54rem;color:#aaa;font-weight:600;}
+#ntrl{height:38px;background:var(--cream);border-radius:9px;
+  margin-bottom:6px;width:100%;position:relative;overflow:hidden;}
+.ndot{position:absolute;border-radius:50%;animation:npop .7s ease-out forwards;pointer-events:none;}
+@keyframes npop{from{bottom:0;opacity:1}to{bottom:48px;opacity:0;transform:scale(0)}}
 
-    .star::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 0 10px white;
-    }
+/* L11 BALANCE */
+#plank{width:clamp(175px,48vw,225px);height:10px;
+  background:linear-gradient(90deg,#c8a44a,#e8c46a,#c8a44a);
+  border-radius:5px;transition:transform .22s ease-out;transform-origin:center;
+  box-shadow:0 4px 10px rgba(200,164,74,.38);position:relative;}
+.bi{position:absolute;font-size:1.55rem;top:-28px;transform:translateX(-50%);}
+#pivt{width:14px;height:28px;background:var(--clay);border-radius:3px;margin:0 auto;}
+#bbase{width:90px;height:5px;background:var(--text-mu);border-radius:3px;margin:0 auto;}
 
-    .star.lit::after {
-      background: var(--gold);
-      box-shadow: 0 0 20px var(--gold);
-      transform: scale(2);
-    }
+/* L12 TRACE */
+#trwrap{background:#0e0e24;border-radius:18px;overflow:hidden;width:100%;}
+#trsvg{display:block;width:100%;height:clamp(175px,46vw,225px);cursor:pointer;touch-action:none;}
 
-    /* Mini-games Elements */
-    .firefly {
-      position: absolute;
-      font-size: 1.1rem;
-      cursor: pointer;
-      z-index: 10;
-    }
+/* L13 LANTERNS */
+#lsky{width:100%;height:clamp(175px,44vw,215px);border-radius:18px;
+  background:linear-gradient(180deg,#1a0a0a,#3d1a2a,#6b2d4a);
+  position:relative;overflow:hidden;}
+.lan{position:absolute;font-size:clamp(1.7rem,5vw,2.1rem);
+  animation:lanRise linear forwards;pointer-events:none;}
+@keyframes lanRise{0%{opacity:1;transform:translateY(0) rotate(-4deg)}
+  75%{opacity:.9}100%{opacity:0;transform:translateY(-240px) rotate(7deg)}}
+.stw{position:absolute;font-size:.75rem;animation:twink 2s infinite alternate;pointer-events:none;}
+@keyframes twink{from{opacity:.15}to{opacity:.85}}
 
-    .cloud {
-      position: absolute;
-      font-size: 3rem;
-      cursor: pointer;
-      transition: transform 0.8s, opacity 0.8s;
-    }
+/* L14 PUZZLE */
+#pboard{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  width:min(228px,68vw);height:min(228px,68vw);}
+.ptile{border-radius:11px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.25rem,5vw,1.75rem);
+  background:var(--cream);border:2px solid var(--cream-dk);
+  box-shadow:0 3px 7px var(--sh);transition:.15s;}
+.ptile:active{transform:scale(.92);}
+.ptile.empty{background:var(--cream-dk);border-style:dashed;
+  border-color:rgba(156,175,136,.28);box-shadow:none;}
 
-    .heart-float {
-      position: absolute;
-      pointer-events: none;
-      animation: floatUp 2s ease-out forwards;
-    }
-
-    @keyframes floatUp {
-      from {
-        transform: translateY(0);
-        opacity: 1;
-      }
-
-      to {
-        transform: translateY(-120px);
-        opacity: 0;
-      }
-    }
-
-    /* Progress dots */
-    .progress-dots {
-      display: flex;
-      gap: 4px;
-      position: absolute;
-      top: 18px;
-      z-index: 20;
-      padding: 0 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #eee;
-      transition: 0.4s;
-    }
-
-    .dot.active {
-      background: var(--sage);
-      width: 15px;
-      border-radius: 8px;
-    }
-
-    .nav-hint {
-      font-size: 0.75rem;
-      font-style: italic;
-      color: #aaa;
-      margin-top: 8px;
-    }
-
-    canvas {
-      width: 100%;
-      height: 220px;
-      background: #fcfcfc;
-      border-radius: 15px;
-      border: 1px solid #eee;
-    }
-
-    /* Colors Level */
-    .paint-palette {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .paint-drop {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      transition: 0.3s;
-      cursor: pointer;
-      border: 3px solid white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+/* L15 FINALE */
+#fin-wrap{width:100%;flex:1;position:relative;overflow:hidden;}
+#fin-cv{position:absolute;inset:0;width:100%;height:100%;}
+.fin-in{position:relative;z-index:2;padding:14px 10px 18px;
+  display:flex;flex-direction:column;align-items:center;height:100%;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;text-align:center;}
+.qcard{background:rgba(250,237,205,.88);backdrop-filter:blur(6px);
+  border-radius:18px;padding:16px 18px;margin:10px 0;
+  border:1px dashed rgba(156,175,136,.5);max-width:300px;
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(.87rem,2.8vw,.98rem);color:var(--text);line-height:1.7;}
+</style>
 </head>
-
 <body>
+<div id="wrap"><div id="app">
+  <div id="prog-wrap"><div id="prog-bar"></div></div>
+  <div id="topbar"><span id="ch-lbl">Prologue</span><span id="st-lbl">0 / 15</span></div>
+  <div id="dots"></div>
+  <div id="toast"></div>
+  <div id="host">
 
-  <div id="app-canvas">
-    <div class="progress-dots" id="dots"></div>
-
-    <!-- Screens -->
-    <div class="screen active" id="s0">
-      <div style="font-size: 3.5rem; margin-top: 10px;">🕊️</div>
-      <h1>Life is a Gift</h1>
-      <p>Every small pulse, every shared laugh, and every quiet moment is a reason to be here. I built this journey for
-        you, bestie.</p>
-      <button class="btn" onclick="next(1)">Enter the Kaleidoscope</button>
+  <!-- S0 INTRO -->
+  <div class="sc on" id="s0">
+    <div style="font-size:clamp(2.8rem,9vw,3.8rem);margin:8px 0;animation:bob 3s infinite">🕊️</div>
+    <h1>Life is a Gift</h1>
+    <p class="sub">Every small pulse, every shared laugh, every quiet moment is a reason to be here. I built this journey just for you, bestie.</p>
+    <div class="card" style="margin:8px 0;text-align:left">
+      <p style="font-size:.75rem;color:var(--text-lt);line-height:1.8;margin:0">
+        ✦ 15 interactive worlds<br>
+        ✦ Real sound effects &amp; music<br>
+        ✦ Challenges that need you<br>
+        ✦ A message at the end, for you
+      </p>
     </div>
-
-    <div class="screen" id="s1">
-      <h2>01. The Rhythm</h2>
-      <p>Hold the circle to inhale the present. Release to exhale the past.</p>
-      <div class="game-zone">
-        <div id="breath-circle" onmousedown="startBreath()" onmouseup="endBreath()" ontouchstart="startBreath(event)"
-          ontouchend="endBreath(event)">
-          <span id="breath-text" style="pointer-events:none; font-weight:700;">Hold</span>
-        </div>
-        <p id="breath-count" style="margin-top:25px; font-weight:700">0 / 3</p>
-      </div>
-    </div>
-
-    <div class="screen" id="s2">
-      <h2>02. Gentle Nurture</h2>
-      <p>Great things take time. Give this seed the water it needs to meet the sun.</p>
-      <div class="game-zone">
-        <div id="can-container" onclick="waterPlant()">🚿</div>
-        <div class="garden-scene">
-          <div id="flower-stem">
-            <div id="flower-head">🌸</div>
-          </div>
-          <div id="pot"></div>
-        </div>
-        <p id="growth-msg" style="margin-top:15px; font-weight:600;">Tap the watering can</p>
-      </div>
-      <button class="btn" id="btn2" style="display:none" onclick="next(3)">It bloomed for you</button>
-    </div>
-
-    <div class="screen" id="s3">
-      <h2>03. Connection</h2>
-      <p>We are all made of stardust. Trace the path of friendship across the night sky.</p>
-      <div class="game-zone">
-        <div id="star-map"></div>
-        <p id="star-msg" style="margin-top:12px;">Connect the lights...</p>
-      </div>
-      <button class="btn" id="btn3" style="display:none" onclick="next(4)">Bound by light</button>
-    </div>
-
-    <div class="screen" id="s4">
-      <h2>04. Inner Peace</h2>
-      <p>Sometimes life gets cloudy. Brush the heavy clouds away to find the blue sky.</p>
-      <div class="game-zone" id="sky-zone"></div>
-      <button class="btn" id="btn4" style="display:none" onclick="next(5)">The sun was always there</button>
-    </div>
-
-    <div class="screen" id="s5">
-      <h2>05. Little Wonders</h2>
-      <p>The smallest lights shine the brightest. Catch 8 fireflies.</p>
-      <div class="game-zone" id="firefly-zone" style="background:#2d3436; border-radius:20px; overflow:hidden;"></div>
-      <p id="firefly-count" style="margin-top:12px; font-weight:700;">Found: 0 / 8</p>
-    </div>
-
-    <div class="screen" id="s6">
-      <h2>06. The Pulse</h2>
-      <p>Tap in sync with the heart. It never gives up on you.</p>
-      <div class="game-zone">
-        <div id="heart-beat" style="font-size:5rem; cursor:pointer;" onclick="pulseHeart()">❤️</div>
-        <p id="pulse-msg" style="margin-top:20px;">Sync 10 heartbeats</p>
-      </div>
-      <button class="btn" id="btn6" style="display:none" onclick="next(7)">Life is beating...</button>
-    </div>
-
-    <div class="screen" id="s7">
-      <h2>07. Reflection</h2>
-      <p>Trace the outline of your heart. You are a masterpiece in progress.</p>
-      <div class="game-zone">
-        <canvas id="heart-canvas"></canvas>
-        <p id="draw-msg" style="margin-top:12px;">Draw a circle of love</p>
-      </div>
-      <button class="btn" id="btn7" style="display:none" onclick="next(8)">Love starts within</button>
-    </div>
-
-    <div class="screen" id="s8">
-      <h2>08. Kind Echoes</h2>
-      <p>Words carry weight. Send 5 positive thoughts into the world.</p>
-      <div class="game-zone" style="background:var(--sky); border-radius:20px;">
-        <div id="thought-emitter" style="font-size:3.5rem; cursor:pointer; z-index:5;" onclick="emitThought()">💭</div>
-        <div id="echo-zone" style="width:100%; height:100%; position:absolute; top:0; left:0;"></div>
-      </div>
-      <p id="thought-count" style="margin-top:10px; font-weight:700;">Thoughts sent: 0 / 5</p>
-    </div>
-
-    <div class="screen" id="s9">
-      <h2>09. The Lighthouse</h2>
-      <p>Even in the stormiest seas, your light guides others. Keep the lighthouse glowing.</p>
-      <div class="game-zone" style="background:#0f3443; border-radius:20px; overflow:hidden;">
-        <div id="lighthouse" style="font-size:4rem; margin-top: 40px;">🏠</div>
-        <div id="beam"
-          style="position:absolute; width:220px; height:120px; background:radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%); clip-path: polygon(0 50%, 100% 0, 100% 100%); left:50%; top: 40%; transform-origin: left center;">
-        </div>
-      </div>
-      <p class="nav-hint">Drag your finger to rotate the light</p>
-      <button class="btn" onclick="next(10)">Guided by grace</button>
-    </div>
-
-    <div class="screen" id="s10">
-      <h2>10. True Colors</h2>
-      <p>Life is boring in black and white. Paint the world with your unique touch.</p>
-      <div class="game-zone">
-        <div class="paint-palette">
-          <div class="paint-drop" onclick="paint(this, '#ff9ff3')" style="background:#ff9ff3"></div>
-          <div class="paint-drop" onclick="paint(this, '#feca57')" style="background:#feca57"></div>
-          <div class="paint-drop" onclick="paint(this, '#48dbfb')" style="background:#48dbfb"></div>
-          <div class="paint-drop" onclick="paint(this, '#ff6b6b')" style="background:#ff6b6b"></div>
-          <div class="paint-drop" onclick="paint(this, '#1dd1a1')" style="background:#1dd1a1"></div>
-          <div class="paint-drop" onclick="paint(this, '#5f27cd')" style="background:#5f27cd"></div>
-        </div>
-        <p id="paint-msg" style="margin-top:20px;">Fill the spectrum</p>
-      </div>
-      <button class="btn" id="btn10" style="display:none" onclick="next(11)">Vibrant & Alive</button>
-    </div>
-
-    <div class="screen" id="s11">
-      <h2>11. Balance</h2>
-      <p>Life is about finding your center. Keep the stone steady.</p>
-      <div class="game-zone">
-        <div id="balance-stone" style="font-size:4rem; transition:0.1s">🗿</div>
-        <div style="width:140px; height:4px; background:var(--text); margin-top:5px; border-radius:2px;"></div>
-        <div style="display:flex; gap:20px; margin-top:30px;">
-          <button class="btn" style="padding:10px 20px" onclick="balanceMove(-10)">◀</button>
-          <button class="btn" style="padding:10px 20px" onclick="balanceMove(10)">▶</button>
-        </div>
-      </div>
-      <button class="btn" onclick="next(12)">Found My Center</button>
-    </div>
-
-    <div class="screen" id="s12">
-      <h2>12. The Melody</h2>
-      <p>Play the notes of your own song. Every life is a different tune.</p>
-      <div class="game-zone" style="flex-direction:row; gap:10px;">
-        <div class="key" onclick="playKey(this)"
-          style="background:var(--sage); height:120px; width:45px; border-radius:12px; box-shadow: 0 4px #7a8e66"></div>
-        <div class="key" onclick="playKey(this)"
-          style="background:var(--clay); height:120px; width:45px; border-radius:12px; box-shadow: 0 4px #a67c52"></div>
-        <div class="key" onclick="playKey(this)"
-          style="background:var(--sky); height:120px; width:45px; border-radius:12px; box-shadow: 0 4px #a8c9db"></div>
-        <div class="key" onclick="playKey(this)"
-          style="background:var(--gold); height:120px; width:45px; border-radius:12px; box-shadow: 0 4px #b8bd9c"></div>
-      </div>
-      <button class="btn" onclick="next(13)">Beautiful Song</button>
-    </div>
-
-    <div class="screen" id="s13">
-      <h2>13. Precious Time</h2>
-      <p>Time doesn't stop, but we can cherish it. Stop the clock close to 5.00s.</p>
-      <div class="game-zone">
-        <div id="timer-display" style="font-size:4rem; font-weight:700; color:var(--clay)">0.00</div>
-        <button class="btn" id="timer-btn" onclick="toggleTimer()" style="margin-top:20px;">Start</button>
-      </div>
-      <button class="btn" id="btn13" style="display:none" onclick="next(14)">Time is a gift</button>
-    </div>
-
-    <div class="screen" id="s14">
-      <div style="font-size: 3.5rem; margin-top: 10px;">🌅</div>
-      <h1>The Masterpiece</h1>
-      <p>Your life is the most valuable thing you'll ever own. Keep breathing, keep growing, keep shining.</p>
-      <div
-        style="background: var(--cream); padding: 20px; border-radius: 20px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; border: 1px dashed var(--sage); line-height: 1.5; margin: 15px 0;">
-        "You aren't just a best friend. You're proof that the universe is capable of making something truly perfect."
-      </div>
-      <p style="font-weight: 700; color: var(--sage);">Forever your bestie. 🤍</p>
-      <button class="btn" onclick="location.reload()">Begin New Day</button>
-    </div>
-
-    <div class="footer">Made with ❤ by Pasindu</div>
+    <button class="btn" onclick="go(1)" style="margin-top:14px">Enter the Kaleidoscope ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
   </div>
 
-  <script>
-    let currentScreen = 0;
-    const totalScreens = 15;
-    const dotsContainer = document.getElementById('dots');
+  <!-- S1 BREATH -->
+  <div class="sc" id="s1">
+    <div class="ctag">Chapter 01</div>
+    <div class="ctitle">The First Breath</div>
+    <p class="sub">Hold the orb to inhale the present. Release to exhale the past. Do this 5 times.</p>
+    <div class="gz">
+      <svg id="b-ring-svg" viewBox="0 0 150 150" style="position:absolute;width:155px;height:155px">
+        <circle cx="75" cy="75" r="68" fill="none" stroke="rgba(170,207,232,.12)" stroke-width="3"/>
+        <circle id="b-arc" cx="75" cy="75" r="68" fill="none" stroke="var(--sky-dk)" stroke-width="3"
+          stroke-dasharray="427" stroke-dashoffset="427" stroke-linecap="round"
+          style="transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .1s"/>
+      </svg>
+      <div id="b-orb"
+        onmousedown="startB(event)" onmouseup="endB(event)"
+        ontouchstart="startB(event)" ontouchend="endB(event)">
+        <span id="b-lbl">HOLD</span>
+      </div>
+      <p style="margin-top:26px;font-weight:700;font-size:.84rem;color:var(--text-lt)" id="b-ctr">Breaths: 0 / 5</p>
+    </div>
+    <button class="btn hi" id="b1" onclick="go(2)">You are calm. You are here ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Initialize progress indicators
-    for (let i = 0; i < totalScreens; i++) {
-      const d = document.createElement('div');
-      d.className = 'dot' + (i === 0 ? ' active' : '');
-      dotsContainer.appendChild(d);
-    }
+  <!-- S2 MEMORY -->
+  <div class="sc" id="s2">
+    <div class="ctag">Chapter 02</div>
+    <div class="ctitle">Garden of Memory</div>
+    <p class="sub">Watch the pattern, then tap it back. It grows with each round. Reach round 5.</p>
+    <div class="gz" style="gap:9px">
+      <div style="background:var(--sage);color:#fff;border-radius:20px;padding:4px 14px;font-size:.7rem;font-weight:700;letter-spacing:1px" id="m-rlbl">Round 1 of 5</div>
+      <div class="mgrid" id="mgrid"></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600" id="m-st">Watch carefully...</p>
+    </div>
+    <button class="btn hi" id="b2" onclick="go(3)">Memory blooms ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    function next(s) {
-      const current = document.querySelector('.screen.active');
-      if (current) current.classList.remove('active');
+  <!-- S3 CONSTELLATION -->
+  <div class="sc" id="s3">
+    <div class="ctag">Chapter 03</div>
+    <div class="ctitle">Connect the Stars</div>
+    <p class="sub">Tap the numbered stars in order to draw your own constellation.</p>
+    <div class="gz">
+      <svg id="cssvg"></svg>
+      <p style="font-size:.77rem;color:var(--text-mu);margin-top:7px" id="c-msg">Tap star 1 first...</p>
+    </div>
+    <button class="btn hi" id="b3" onclick="go(4)">Written in the stars ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-      const nextScreen = document.getElementById('s' + s);
-      nextScreen.classList.add('active');
-      currentScreen = s;
+  <!-- S4 RHYTHM -->
+  <div class="sc" id="s4">
+    <div class="ctag">Chapter 04</div>
+    <div class="ctitle">The Heartbeat</div>
+    <p class="sub">Tap when the heart pulses. Hit 20 beats — miss 3 and it resets.</p>
+    <div class="gz">
+      <button id="beat-btn" onclick="rhythmTap()">❤️</button>
+      <div id="r-track"><div id="r-fill"></div></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600;margin-top:8px" id="r-msg">Beats: 0/20 · Misses: 0/3</p>
+    </div>
+    <button class="btn hi" id="b4" onclick="go(5)">Life is rhythm ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-      const dots = document.querySelectorAll('.dot');
-      dots.forEach((d, i) => d.classList.toggle('active', i === s));
+  <!-- S5 FIREFLIES -->
+  <div class="sc" id="s5">
+    <div class="ctag">Chapter 05</div>
+    <div class="ctitle">Little Lights</div>
+    <p class="sub">Find all 12 fireflies hiding in the dark. They drift — be quick!</p>
+    <div class="gz">
+      <div id="ffz"></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600;margin-top:8px" id="ff-msg">Found: 0 / 12</p>
+    </div>
+    <button class="btn hi" id="b5" onclick="go(6)">The dark holds magic ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-      // Dynamic initializers
-      if (s === 3) initStars();
-      if (s === 4) initClouds();
-      if (s === 5) initFireflies();
-      if (s === 7) initDrawing();
-      if (s === 9) initLighthouse();
-    }
+  <!-- S6 CLOUDS -->
+  <div class="sc" id="s6">
+    <div class="ctag">Chapter 06</div>
+    <div class="ctitle">Clear the Sky</div>
+    <p class="sub">Tap each heavy cloud away. Your sunshine was always there beneath them.</p>
+    <div class="gz">
+      <div id="sky-sc"><div id="sun-icon">☀️</div></div>
+    </div>
+    <button class="btn hi" id="b6" onclick="go(7)">The sun never left ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 1: Breath
-    let breaths = 0;
-    function startBreath(e) {
-      if (e) e.preventDefault();
-      if (breaths >= 3) return;
-      document.getElementById('breath-circle').classList.add('inhale');
-      document.getElementById('breath-text').textContent = "Inhale...";
-    }
-    function endBreath(e) {
-      if (e) e.preventDefault();
-      const circle = document.getElementById('breath-circle');
-      if (breaths >= 3 || !circle.classList.contains('inhale')) return;
-      circle.classList.remove('inhale');
-      document.getElementById('breath-text').textContent = "Exhale...";
-      breaths++;
-      document.getElementById('breath-count').textContent = `${breaths} / 3`;
-      if (breaths === 3) setTimeout(() => next(2), 2000);
-    }
+  <!-- S7 WORDS -->
+  <div class="sc" id="s7">
+    <div class="ctag">Chapter 07</div>
+    <div class="ctitle">Harvest Kind Words</div>
+    <p class="sub">Tap the warm words falling from above. Collect 15. The grey ones don't count.</p>
+    <div class="gz">
+      <div id="wrdz"></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600;margin-top:8px" id="w-msg">Caught: 0 / 15</p>
+    </div>
+    <button class="btn hi" id="b7" onclick="go(8)">Words are seeds ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 2: Growth
-    let waterLevel = 0;
-    function waterPlant() {
-      if (waterLevel >= 10) return;
-      waterLevel++;
-      const can = document.getElementById('can-container');
-      can.style.transform = "rotate(-30deg) translate(-15px, 15px)";
-      setTimeout(() => can.style.transform = "rotate(0) translate(0,0)", 200);
+  <!-- S8 DRAW -->
+  <div class="sc" id="s8">
+    <div class="ctag">Chapter 08</div>
+    <div class="ctitle">Paint Your Soul</div>
+    <p class="sub">Draw anything you feel. Pick a colour. There's no wrong answer — just let it flow.</p>
+    <div class="gz" style="gap:8px;max-height:330px">
+      <div id="draw-tb" style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center"></div>
+      <canvas id="draw-cv" style="touch-action:none"></canvas>
+      <p style="font-size:.72rem;color:var(--text-mu)" id="d-hint">Draw at least 3 strokes to continue</p>
+    </div>
+    <button class="btn hi" id="b8" onclick="go(9)">Your masterpiece ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-      const stem = document.getElementById('flower-stem');
-      const head = document.getElementById('flower-head');
-      stem.style.height = (waterLevel * 12) + 'px';
+  <!-- S9 MAZE -->
+  <div class="sc" id="s9">
+    <div class="ctag">Chapter 09</div>
+    <div class="ctitle">Find Your Way</div>
+    <p class="sub">Navigate to the star. Every path has an end — keep going.</p>
+    <div class="gz" style="gap:10px">
+      <div id="mwrap"><canvas id="mcanv"></canvas></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:6px;width:min(162px,50vw)">
+        <div></div><button class="dbtn" style="grid-column:2;grid-row:1" onmousedown="mv('u')" ontouchstart="mv('u')">↑</button><div></div>
+        <button class="dbtn" style="grid-column:1;grid-row:2" onmousedown="mv('l')" ontouchstart="mv('l')">←</button>
+        <button class="dbtn" style="grid-column:2;grid-row:2" onmousedown="mv('d')" ontouchstart="mv('d')">↓</button>
+        <button class="dbtn" style="grid-column:3;grid-row:2" onmousedown="mv('r')" ontouchstart="mv('r')">→</button>
+      </div>
+    </div>
+    <button class="btn hi" id="b9" onclick="go(10)">Found the way ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-      if (waterLevel === 10) {
-        head.style.opacity = '1';
-        document.getElementById('growth-msg').textContent = "Life finds its way.";
-        document.getElementById('btn2').style.display = 'block';
-      }
-    }
+  <!-- S10 PIANO -->
+  <div class="sc" id="s10">
+    <div class="ctag">Chapter 10</div>
+    <div class="ctitle">Your Melody</div>
+    <p class="sub">Play the glowing keys in order to compose your life's verse.</p>
+    <div class="gz" style="gap:7px">
+      <div id="ntrl"></div>
+      <div class="p-outer"><div class="pkeys" id="pkeys"></div></div>
+      <p style="font-size:.78rem;color:var(--text-lt);font-weight:600" id="p-msg">Play note 1 of 8</p>
+    </div>
+    <button class="btn hi" id="b10" onclick="go(11)">Life is music ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 3: Stars
-    function initStars() {
-      const map = document.getElementById('star-map');
-      map.innerHTML = '';
-      let found = 0;
-      const coords = [{ t: 25, l: 20 }, { t: 35, l: 55 }, { t: 20, l: 85 }, { t: 65, l: 80 }, { t: 80, l: 45 }, { t: 60, l: 15 }];
-      coords.forEach((c, i) => {
-        const s = document.createElement('div');
-        s.className = 'star';
-        s.style.top = c.t + '%'; s.style.left = c.l + '%';
-        s.onclick = () => {
-          if (i === found) {
-            s.classList.add('lit');
-            found++;
-            if (found === coords.length) {
-              document.getElementById('star-msg').textContent = "Infinite connection.";
-              document.getElementById('btn3').style.display = 'block';
-            }
-          }
-        };
-        map.appendChild(s);
-      });
-    }
+  <!-- S11 BALANCE -->
+  <div class="sc" id="s11">
+    <div class="ctag">Chapter 11</div>
+    <div class="ctitle">Perfect Balance</div>
+    <p class="sub">Keep the plank level for 10 seconds. Hold the arrows to lean. Life needs balance.</p>
+    <div class="gz" style="justify-content:center;gap:7px">
+      <div style="font-size:clamp(1.9rem,6.5vw,2.5rem)" id="bal-emo">⚖️</div>
+      <div id="plank" style="margin:5px 0">
+        <div class="bi" id="b-left" style="left:18%">💜</div>
+        <div class="bi" id="b-right" style="left:78%">🌟</div>
+      </div>
+      <div id="pivt"></div>
+      <div style="width:3px;height:14px;background:var(--text-mu);margin:0 auto"></div>
+      <div id="bbase"></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600" id="bal-msg">Hold 0.0 / 10 s</p>
+      <div style="display:flex;gap:12px;margin-top:4px">
+        <button class="btn sm out" onmousedown="balP(-1)" ontouchstart="balP(-1)" onmouseup="balR" ontouchend="balR">◀ Lean</button>
+        <button class="btn sm out" onmousedown="balP(1)" ontouchstart="balP(1)" onmouseup="balR" ontouchend="balR">Lean ▶</button>
+      </div>
+    </div>
+    <button class="btn hi" id="b11" onclick="go(12)">Balance is wisdom ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 4: Clouds
-    function initClouds() {
-      const zone = document.getElementById('sky-zone');
-      zone.innerHTML = '';
-      let cloudsLeft = 6;
-      for (let i = 0; i < 6; i++) {
-        const c = document.createElement('div');
-        c.className = 'cloud';
-        c.textContent = '☁️';
-        c.style.left = Math.random() * 70 + 10 + '%';
-        c.style.top = Math.random() * 70 + 10 + '%';
-        c.onclick = () => {
-          c.style.opacity = '0';
-          c.style.transform = 'scale(0.1)';
-          cloudsLeft--;
-          if (cloudsLeft === 0) document.getElementById('btn4').style.display = 'block';
-        };
-        zone.appendChild(c);
-      }
-    }
+  <!-- S12 TRACE -->
+  <div class="sc" id="s12">
+    <div class="ctag">Chapter 12</div>
+    <div class="ctitle">Draw a Star</div>
+    <p class="sub">Trace the dotted star shape freely. You don't need to be perfect — just try.</p>
+    <div class="gz">
+      <div id="trwrap"><svg id="trsvg"></svg></div>
+      <p style="font-size:.77rem;color:var(--text-mu);margin-top:7px" id="tr-msg">Follow the dotted path...</p>
+    </div>
+    <button class="btn hi" id="b12" onclick="go(13)">You are a star ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 5: Fireflies
-    function initFireflies() {
-      const zone = document.getElementById('firefly-zone');
-      zone.innerHTML = '';
-      let count = 0;
-      for (let i = 0; i < 8; i++) {
-        const f = document.createElement('div');
-        f.className = 'firefly';
-        f.textContent = '✨';
-        f.style.left = Math.random() * 85 + '%';
-        f.style.top = Math.random() * 85 + '%';
-        f.onclick = () => {
-          f.style.opacity = '0';
-          count++;
-          document.getElementById('firefly-count').textContent = `Found: ${count} / 8`;
-          if (count === 8) setTimeout(() => next(6), 1200);
-        };
-        zone.appendChild(f);
-        setInterval(() => {
-          f.style.transition = '1s';
-          f.style.left = (parseFloat(f.style.left) + (Math.random() * 10 - 5)) + '%';
-          f.style.top = (parseFloat(f.style.top) + (Math.random() * 10 - 5)) + '%';
-        }, 1500);
-      }
-    }
+  <!-- S13 LANTERNS -->
+  <div class="sc" id="s13">
+    <div class="ctag">Chapter 13</div>
+    <div class="ctitle">Let It Go</div>
+    <p class="sub">Light 8 lanterns and release them. Each one carries a worry you're setting free.</p>
+    <div class="gz" style="gap:9px">
+      <div id="lsky"></div>
+      <p style="font-size:.8rem;color:var(--text-lt);font-weight:600" id="l-msg">0 / 8 lanterns released</p>
+      <button class="btn sm clay" onclick="lightLan()">🏮 Light a Lantern</button>
+    </div>
+    <button class="btn hi" id="b13" onclick="go(14)">Released with love ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 6: Pulse
-    let pulses = 0;
-    function pulseHeart() {
-      const h = document.getElementById('heart-beat');
-      h.style.transform = "scale(1.2)";
-      setTimeout(() => h.style.transform = "scale(1)", 150);
-      pulses++;
-      document.getElementById('pulse-msg').textContent = `Sync: ${pulses} / 10`;
-      if (pulses === 10) document.getElementById('btn6').style.display = 'block';
-    }
+  <!-- S14 PUZZLE -->
+  <div class="sc" id="s14">
+    <div class="ctag">Chapter 14</div>
+    <div class="ctitle">The Mosaic</div>
+    <p class="sub">Slide the tiles to complete the picture. Everything fits together in the end.</p>
+    <div class="gz" style="gap:8px">
+      <div id="pboard"></div>
+      <p style="font-size:.77rem;color:var(--text-mu)" id="pb-msg">Moves: 0</p>
+    </div>
+    <button class="btn hi" id="b14" onclick="go(15)">Pieces of a whole ✨</button>
+    <div class="foot">Made with ❤ by Pasindu</div>
+  </div>
 
-    // Level 7: Drawing
-    function initDrawing() {
-      const canvas = document.getElementById('heart-canvas');
-      const ctx = canvas.getContext('2d');
-      let isDrawing = false;
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      ctx.strokeStyle = '#ff9ff3';
-      ctx.lineWidth = 5;
-      ctx.lineCap = 'round';
+  <!-- S15 FINALE -->
+  <div class="sc" id="s15" style="padding:0">
+    <div id="fin-wrap">
+      <canvas id="fin-cv"></canvas>
+      <div class="fin-in">
+        <div style="font-size:clamp(2.5rem,8vw,3.4rem);margin:8px 0;animation:bob 3s infinite">🌅</div>
+        <h1 style="color:var(--clay)">The Masterpiece</h1>
+        <p class="sub">Your life is the most valuable thing in this universe. Keep breathing, keep growing, keep shining.</p>
+        <div class="qcard">
+          "You aren't just a best friend. You're proof that the universe is capable of making something truly, perfectly beautiful. Don't you ever forget that."
+        </div>
+        <p style="font-size:.82rem;color:var(--sage-dk);font-weight:700;line-height:2.1;margin-bottom:14px">
+          You are worthy of love.<br>
+          You are worthy of rest.<br>
+          You are worthy of every beautiful thing.<br>
+          <span style="color:var(--clay)">Forever your bestie. 🤍</span>
+        </p>
+        <button class="btn" onclick="location.reload()">Begin New Day ✨</button>
+        <div class="foot" style="margin-top:14px">Made with ❤ by Pasindu</div>
+      </div>
+    </div>
+  </div>
 
-      function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      }
+  </div><!-- /host -->
+</div></div><!-- /app /wrap -->
+<style>
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+</style>
+<script>
+/* ═══════════ GLOBALS ═══════════ */
+const TOT=16;let cur=0;
+const CHS=['Prologue','The First Breath','Garden of Memory','Connect the Stars','The Heartbeat',
+  'Little Lights','Clear the Sky','Harvest Kind Words','Paint Your Soul','Find Your Way',
+  'Your Melody','Perfect Balance','Draw a Star','Let It Go','The Mosaic','Epilogue'];
 
-      const start = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-      const move = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-      const stop = () => { if (isDrawing) { isDrawing = false; document.getElementById('btn7').style.display = 'block'; } };
+/* DOTS */
+const dotsEl=document.getElementById('dots');
+for(let i=0;i<TOT;i++){const d=document.createElement('div');d.className='dot'+(i===0?' now':'');dotsEl.appendChild(d);}
+function udots(s){document.querySelectorAll('.dot').forEach((d,i)=>d.className='dot'+(i<s?' done':i===s?' now':''));}
 
-      canvas.addEventListener('mousedown', start);
-      canvas.addEventListener('mousemove', move);
-      window.addEventListener('mouseup', stop);
-      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
-      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
-      canvas.addEventListener('touchend', stop);
-    }
+/* AUDIO */
+let AC;
+function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
+function tone(f,t='sine',d=.2,v=.28,delay=0){
+  try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);
+    o.type=t;o.frequency.value=f;const T=a.currentTime+delay;
+    g.gain.setValueAtTime(0,T);g.gain.linearRampToValueAtTime(v,T+.01);
+    g.gain.exponentialRampToValueAtTime(.001,T+d);o.start(T);o.stop(T+d);}catch(e){}}
+function chord(fs,d=.45){fs.forEach((f,i)=>tone(f,'sine',d,.16,i*.06));}
+function ok(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.32,.2,i*.09));}
+function bad(){tone(180,'sawtooth',.22,.18);setTimeout(()=>tone(150,'sawtooth',.22,.18),130);}
+function clk(){tone(700,'square',.05,.1);}
+function sft(){tone(440,'sine',.16,.09);}
+function wsh(){try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);
+  o.type='sawtooth';o.frequency.setValueAtTime(900,a.currentTime);
+  o.frequency.exponentialRampToValueAtTime(80,a.currentTime+.32);
+  g.gain.setValueAtTime(.16,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.32);
+  o.start();o.stop(a.currentTime+.32);}catch(e){}}
 
-    // Level 8: Echoes
-    let echoes = 0;
-    function emitThought() {
-      if (echoes >= 5) return;
-      echoes++;
-      const zone = document.getElementById('echo-zone');
-      const e = document.createElement('div');
-      e.className = 'heart-float';
-      e.textContent = ['💖', '🌟', '✨', '🍀', '🌈'][echoes - 1];
-      e.style.left = '50%';
-      e.style.top = '40%';
-      e.style.fontSize = '2rem';
-      zone.appendChild(e);
-      document.getElementById('thought-count').textContent = `Thoughts sent: ${echoes} / 5`;
-      if (echoes === 5) setTimeout(() => next(9), 2000);
-    }
+/* TOAST */
+function toast(msg,dur=2000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),dur);}
 
-    // Level 9: Lighthouse
-    function initLighthouse() {
-      const beam = document.getElementById('beam');
-      const update = (e) => {
-        if (currentScreen !== 9) return;
-        const rect = beam.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const angle = Math.atan2(clientY - rect.top, clientX - rect.left);
-        beam.style.transform = `rotate(${angle}rad)`;
-      };
-      document.addEventListener('mousemove', update);
-      document.addEventListener('touchmove', update, { passive: false });
-    }
+/* FLOAT */
+function floatAt(el,em){const r=el.getBoundingClientRect(),ar=document.getElementById('app').getBoundingClientRect();
+  const f=document.createElement('div');f.className='fl';f.textContent=em;
+  f.style.left=(r.left-ar.left+r.width/2-10)+'px';f.style.top=(r.top-ar.top)+'px';
+  document.getElementById('app').appendChild(f);setTimeout(()=>f.remove(),1600);}
 
-    // Level 10: Paint
-    let colors = 0;
-    function paint(el, color) {
-      if (el.style.transform === 'scale(1.2)') return;
-      el.style.transform = 'scale(1.2)';
-      el.style.borderColor = '#4a4e69';
-      colors++;
-      if (colors === 6) {
-        document.getElementById('paint-msg').textContent = "A world in bloom!";
-        document.getElementById('btn10').style.display = 'block';
-      }
-    }
+/* NAV */
+function go(s){try{ac().resume();}catch(e){}
+  document.getElementById('s'+cur).classList.remove('on');
+  cur=s;const sc=document.getElementById('s'+s);sc.classList.add('on');sc.scrollTop=0;
+  document.getElementById('prog-bar').style.width=((s/(TOT-1))*100)+'%';
+  document.getElementById('ch-lbl').textContent=CHS[s]||'';
+  document.getElementById('st-lbl').textContent=s+' / '+(TOT-1);
+  udots(s);chord([440,554,659],.22);
+  ({2:iMem,3:iConst,4:iRhythm,5:iFF,6:iClouds,7:iWords,8:iDraw,
+    9:iMaze,10:iPiano,11:iBal,12:iTrace,13:iLan,14:iPuz,15:iFin}[s]||function(){})();}
 
-    // Level 11: Balance
-    let balance = 0;
-    function balanceMove(val) {
-      balance += val;
-      document.getElementById('balance-stone').style.transform = `rotate(${balance}deg)`;
-    }
+/* ════════ L1 BREATH ════════ */
+let bCnt=0,bAct=false,bTmr=null;
+function startB(e){e.preventDefault();try{ac().resume();}catch(x){}
+  if(bAct||bCnt>=5)return;bAct=true;
+  document.getElementById('b-orb').classList.add('big');
+  document.getElementById('b-lbl').textContent='INHALE';tone(220,'sine',4,.07);
+  let p=0;const arc=document.getElementById('b-arc');
+  bTmr=setInterval(()=>{p+=1/50;arc.style.strokeDashoffset=427*(1-Math.min(p,1));
+    if(p>=1){clearInterval(bTmr);document.getElementById('b-lbl').textContent='HOLD';}},80);}
+function endB(e){e.preventDefault();if(!bAct)return;bAct=false;clearInterval(bTmr);
+  document.getElementById('b-orb').classList.remove('big');
+  document.getElementById('b-lbl').textContent='EXHALE';
+  document.getElementById('b-arc').style.strokeDashoffset=427;
+  tone(180,'sine',2,.07);bCnt++;
+  document.getElementById('b-ctr').textContent='Breaths: '+bCnt+' / 5';
+  if(bCnt>=5){toast('🌬️ You are fully present');
+    setTimeout(()=>{document.getElementById('b1').classList.remove('hi');ok();},1400);}}
 
-    // Level 12: Music
-    function playKey(el) {
-      el.style.transform = 'translateY(4px)';
-      el.style.boxShadow = 'none';
-      setTimeout(() => {
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = '0 4px rgba(0,0,0,0.1)';
-      }, 150);
-    }
+/* ════════ L2 MEMORY ════════ */
+const MEMS=['🌸','🌙','⭐','🦋','🌊','🌺','🍀','🌈','💎'];
+let mSeq=[],mIn=[],mRnd=1,mWt=false;
+function iMem(){mSeq=[];mIn=[];mRnd=1;bldMem();setTimeout(addMem,500);}
+function bldMem(){const g=document.getElementById('mgrid');g.innerHTML='';
+  MEMS.forEach((em,i)=>{const d=document.createElement('div');d.className='mtile';
+    d.textContent=em;d.onclick=()=>mTap(i,d);g.appendChild(d);});}
+function addMem(){mSeq.push(Math.floor(Math.random()*9));mIn=[];mWt=true;
+  document.getElementById('m-st').textContent='Watch...';
+  document.getElementById('m-rlbl').textContent='Round '+mRnd+' of 5';
+  const ts=document.querySelectorAll('.mtile');
+  mSeq.forEach((idx,i)=>setTimeout(()=>{ts[idx].classList.add('flash');tone(270+idx*44,'sine',.27,.2);
+    setTimeout(()=>ts[idx].classList.remove('flash'),310);},i*640+180));
+  setTimeout(()=>{mWt=false;document.getElementById('m-st').textContent='Your turn! ('+mSeq.length+' taps)';},mSeq.length*640+430);}
+function mTap(idx,el){if(mWt)return;tone(270+idx*44,'sine',.13,.16);
+  el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),190);
+  if(idx===mSeq[mIn.length]){mIn.push(idx);floatAt(el,'✨');
+    if(mIn.length===mSeq.length){
+      if(mRnd>=5){toast('🌸 Memory blooms!');ok();setTimeout(()=>document.getElementById('b2').classList.remove('hi'),900);}
+      else{mRnd++;tone(640,'sine',.16,.26);mIn=[];setTimeout(addMem,750);}}}
+  else{bad();el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),280);
+    toast('Try again! 🌟');setTimeout(()=>{mIn=[];mWt=false;setTimeout(()=>{mSeq=mSeq.slice(0,-1);addMem();},380);},580);}}
 
-    // Level 13: Timer
-    let timerOn = false;
-    let time = 0;
-    let tInt;
-    function toggleTimer() {
-      const b = document.getElementById('timer-btn');
-      const d = document.getElementById('timer-display');
-      if (!timerOn) {
-        timerOn = true;
-        b.textContent = "Stop";
-        time = 0;
-        tInt = setInterval(() => { time += 0.01; d.textContent = time.toFixed(2); }, 10);
-      } else {
-        timerOn = false;
-        clearInterval(tInt);
-        b.style.display = 'none';
-        document.getElementById('btn13').style.display = 'block';
-      }
-    }
-  </script>
+/* ════════ L3 CONSTELLATION ════════ */
+let cFnd=0,cSt=[];
+function iConst(){cFnd=0;const svg=document.getElementById('cssvg');svg.innerHTML='';
+  const W=svg.clientWidth||290,H=svg.clientHeight||190;
+  const pts=[[.5,.1],[.83,.32],[.71,.7],[.29,.7],[.17,.32],[.5,.47],[.33,.17],[.67,.17]];
+  cSt=pts.map((p,i)=>({x:p[0]*W,y:p[1]*H,el:null,i}));
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  poly.setAttribute('points',cSt.map(s=>s.x+','+s.y).join(' '));
+  poly.setAttribute('fill','none');poly.setAttribute('stroke','rgba(255,255,255,.07)');
+  poly.setAttribute('stroke-width','1.5');poly.setAttribute('stroke-dasharray','4,5');svg.appendChild(poly);
+  cSt.forEach((s,i)=>{
+    const tx=document.createElementNS('http://www.w3.org/2000/svg','text');
+    tx.setAttribute('x',s.x);tx.setAttribute('y',s.y-13);tx.setAttribute('text-anchor','middle');
+    tx.setAttribute('fill','rgba(255,255,255,.22)');tx.setAttribute('font-size','9');
+    tx.setAttribute('font-family','Quicksand,sans-serif');tx.textContent=i+1;svg.appendChild(tx);
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',s.x);c.setAttribute('cy',s.y);c.setAttribute('r','9');
+    c.setAttribute('fill','rgba(255,255,255,.08)');c.setAttribute('stroke','rgba(255,255,255,.45)');
+    c.setAttribute('stroke-width','1.5');c.style.cursor='pointer';
+    c.onclick=()=>{if(i!==cFnd)return;
+      tone(390+i*55,'sine',.27,.2);c.setAttribute('fill','rgba(255,215,0,.55)');c.setAttribute('stroke','gold');
+      if(cFnd>0){const pv=cSt[cFnd-1],now=cSt[i];
+        const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+        ln.setAttribute('x1',pv.x);ln.setAttribute('y1',pv.y);ln.setAttribute('x2',now.x);ln.setAttribute('y2',now.y);
+        ln.setAttribute('stroke','rgba(255,215,0,.4)');ln.setAttribute('stroke-width','1.5');svg.insertBefore(ln,svg.firstChild);}
+      cFnd++;document.getElementById('c-msg').textContent='Stars connected: '+cFnd+' / '+cSt.length;
+      if(cFnd===cSt.length){ok();toast('✨ A constellation is born!');
+        setTimeout(()=>document.getElementById('b3').classList.remove('hi'),800);}};
+    s.el=c;svg.appendChild(c);});}
+
+/* ════════ L4 RHYTHM ════════ */
+let rB=0,rM=0,rWin=false,rInt=null,rExp=false;
+function iRhythm(){rB=0;rM=0;rWin=false;clearInterval(rInt);
+  rInt=setInterval(()=>{if(rWin)return;
+    const btn=document.getElementById('beat-btn');
+    btn.style.transform='scale(1.11)';tone(62,'sine',.1,.1);
+    const rp=document.createElement('div');rp.className='rpl';btn.appendChild(rp);setTimeout(()=>rp.remove(),950);
+    rExp=true;setTimeout(()=>{btn.style.transform='scale(1)';},135);
+    setTimeout(()=>{if(rExp){rExp=false;rM++;uRhythm();
+      if(rM>=3){clearInterval(rInt);toast('💔 Missed — restarting');
+        setTimeout(()=>{rB=0;rM=0;document.getElementById('r-fill').style.width='0%';iRhythm();},1100);}}},410);},840);}
+function rhythmTap(){clk();if(rExp){rExp=false;rB++;tone(490,'sine',.11,.16);
+  document.getElementById('r-fill').style.width=(rB/20*100)+'%';uRhythm();
+  if(rB>=20){rWin=true;clearInterval(rInt);ok();toast('💓 Perfect rhythm!');
+    setTimeout(()=>document.getElementById('b4').classList.remove('hi'),800);}}}
+function uRhythm(){document.getElementById('r-msg').textContent='Beats: '+rB+'/20 · Misses: '+rM+'/3';}
+
+/* ════════ L5 FIREFLIES ════════ */
+let ffFnd=0;
+function iFF(){ffFnd=0;document.getElementById('ff-msg').textContent='Found: 0 / 12';
+  const z=document.getElementById('ffz');z.innerHTML='';
+  for(let i=0;i<12;i++){const f=document.createElement('div');f.className='ff';
+    f.textContent=['✨','⭐','💫','🌟'][i%4];
+    let lx=5+Math.random()*82,ly=5+Math.random()*82;
+    f.style.left=lx+'%';f.style.top=ly+'%';
+    f.onclick=()=>{if(f.classList.contains('pop'))return;f.classList.add('pop');
+      tone(650+Math.random()*190,'sine',.18,.2);ffFnd++;
+      document.getElementById('ff-msg').textContent='Found: '+ffFnd+' / 12';
+      if(ffFnd>=12){ok();toast('🌿 All lights found!');
+        setTimeout(()=>document.getElementById('b5').classList.remove('hi'),900);}};
+    z.appendChild(f);
+    setInterval(()=>{if(f.classList.contains('pop'))return;
+      lx=Math.max(3,Math.min(90,lx+(Math.random()*13-6.5)));
+      ly=Math.max(3,Math.min(90,ly+(Math.random()*13-6.5)));
+      f.style.left=lx+'%';f.style.top=ly+'%';},1700+Math.random()*600);}}
+
+/* ════════ L6 CLOUDS ════════ */
+let cDn=0;
+function iClouds(){cDn=0;const bg=document.getElementById('sky-sc');
+  bg.querySelectorAll('.cld').forEach(c=>c.remove());
+  document.getElementById('sun-icon').classList.remove('show');
+  [[8,12],[42,7],[74,20],[17,50],[57,44],[32,70],[77,62],[4,78]].forEach((p,i)=>{
+    const c=document.createElement('div');c.className='cld';
+    c.textContent=['☁️','🌧️','⛅','🌦️'][i%4];c.style.left=p[0]+'%';c.style.top=p[1]+'%';
+    c.onclick=()=>{if(c.classList.contains('gone'))return;c.classList.add('gone');wsh();cDn++;
+      if(cDn>=8){document.getElementById('sun-icon').classList.add('show');
+        chord([523,659,784,1047],.5);toast('☀️ Your sunshine was always there!');
+        setTimeout(()=>document.getElementById('b6').classList.remove('hi'),1100);}};
+    bg.appendChild(c);});}
+
+/* ════════ L7 WORDS ════════ */
+const GW=['Brave','Loved','Worthy','Radiant','Strong','Kind','Magic','Enough','Joyful',
+  'Bright','Beloved','Resilient','Precious','Gifted','Tender','Bold','Seen','Whole','Alive','Wonder'];
+const BW=['Doubt','Numb','Fear','Hollow'];
+let wCaught=0,wInt=null;
+function iWords(){wCaught=0;document.getElementById('w-msg').textContent='Caught: 0 / 15';
+  const z=document.getElementById('wrdz');z.innerHTML='';clearInterval(wInt);
+  wInt=setInterval(()=>{if(wCaught>=15)return;
+    const good=Math.random()>.25;
+    const word=good?GW[Math.floor(Math.random()*GW.length)]:BW[Math.floor(Math.random()*BW.length)];
+    const el=document.createElement('div');el.className='wpill '+(good?'good':'bad');
+    el.textContent=word;el.style.left=(4+Math.random()*72)+'%';
+    const dur=3.5+Math.random()*2.8;el.style.animationDuration=dur+'s';
+    el.onclick=()=>{if(!good){bad();return;}el.classList.add('caught');
+      tone(590+Math.random()*90,'sine',.17,.18);wCaught++;
+      document.getElementById('w-msg').textContent='Caught: '+wCaught+' / 15';
+      if(wCaught>=15){clearInterval(wInt);ok();toast('🌈 Words are seeds!');
+        setTimeout(()=>document.getElementById('b7').classList.remove('hi'),800);}};
+    z.appendChild(el);setTimeout(()=>el.remove(),(dur+.18)*1000);},740);}
+
+/* ════════ L8 DRAW ════════ */
+let dStr=0;
+function iDraw(){dStr=0;
+  const canvas=document.getElementById('draw-cv');
+  const host=document.getElementById('host');
+  const W=Math.min(host.clientWidth-40,370);
+  canvas.width=W;canvas.height=Math.round(W*.52);
+  canvas.style.width=W+'px';canvas.style.height=Math.round(W*.52)+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='rgba(250,237,205,.55)';ctx.fillRect(0,0,W,canvas.height);
+  const COLS=['#9caf88','#d4a373','#f2b5c0','#c9c4e8','#d4eaf7','#f6c94e','#7ecec4','#f4a0a0'];
+  const tb=document.getElementById('draw-tb');tb.innerHTML='';
+  let col=COLS[0],sz=5,drawing=false;
+  COLS.forEach(c=>{const b=document.createElement('div');b.className='csw'+(c===col?' on':'');
+    b.style.background=c;b.onclick=()=>{col=c;document.querySelectorAll('.csw').forEach(x=>x.classList.remove('on'));b.classList.add('on');clk();};tb.appendChild(b);});
+  ['S','M','L'].forEach((s,i)=>{const b=document.createElement('button');b.className='szbtn'+(i===1?' on':'');
+    b.textContent=s;b.onclick=()=>{sz=[3,6,11][i];document.querySelectorAll('.szbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');};tb.appendChild(b);});
+  function gp(e){const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*(canvas.width/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};}
+  canvas.onmousedown=canvas.ontouchstart=(e)=>{e.preventDefault();drawing=true;const p=gp(e);ctx.beginPath();ctx.moveTo(p.x,p.y);tone(380,'sine',.04,.07);};
+  canvas.onmousemove=canvas.ontouchmove=(e)=>{e.preventDefault();if(!drawing)return;const p=gp(e);ctx.strokeStyle=col;ctx.lineWidth=sz;ctx.lineCap='round';ctx.lineTo(p.x,p.y);ctx.stroke();};
+  const stop=()=>{if(!drawing)return;drawing=false;dStr++;document.getElementById('d-hint').textContent='Strokes: '+dStr+' — beautiful!';if(dStr>=3)document.getElementById('b8').classList.remove('hi');};
+  window.onmouseup=window.ontouchend=stop;}
+
+/* ════════ L9 MAZE ════════ */
+const MS=7;let mG=[],mP={x:0,y:0};
+function iMaze(){mP={x:0,y:0};genMaze();drawMaze();}
+function genMaze(){
+  mG=Array.from({length:MS},()=>Array.from({length:MS},()=>({n:true,s:true,e:true,w:true,v:false})));
+  const stk=[{x:0,y:0}];mG[0][0].v=true;
+  while(stk.length){const c=stk[stk.length-1];const nb=[];
+    [{dx:0,dy:-1,d:'n',o:'s'},{dx:0,dy:1,d:'s',o:'n'},{dx:1,dy:0,d:'e',o:'w'},{dx:-1,dy:0,d:'w',o:'e'}]
+      .forEach(dir=>{const nx=c.x+dir.dx,ny=c.y+dir.dy;
+        if(nx>=0&&nx<MS&&ny>=0&&ny<MS&&!mG[ny][nx].v)nb.push({...dir,nx,ny});});
+    if(nb.length){const n=nb[Math.floor(Math.random()*nb.length)];
+      mG[c.y][c.x][n.d]=false;mG[n.ny][n.nx][n.o]=false;mG[n.ny][n.nx].v=true;stk.push({x:n.nx,y:n.ny});}
+    else stk.pop();}}
+function drawMaze(){const cv=document.getElementById('mcanv');
+  const sz=Math.min(document.getElementById('host').clientWidth-58,234);
+  cv.width=sz;cv.height=sz;const cs=sz/MS;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#faedcd';ctx.fillRect(0,0,sz,sz);
+  ctx.strokeStyle='rgba(74,78,105,.28)';ctx.lineWidth=2;
+  for(let y=0;y<MS;y++)for(let x=0;x<MS;x++){const cell=mG[y][x];const px=x*cs,py=y*cs;
+    ctx.beginPath();if(cell.n){ctx.moveTo(px,py);ctx.lineTo(px+cs,py);}
+    if(cell.s){ctx.moveTo(px,py+cs);ctx.lineTo(px+cs,py+cs);}
+    if(cell.w){ctx.moveTo(px,py);ctx.lineTo(px,py+cs);}
+    if(cell.e){ctx.moveTo(px+cs,py);ctx.lineTo(px+cs,py+cs);}ctx.stroke();}
+  ctx.font=cs*.55+'px serif';ctx.textAlign='center';
+  ctx.fillText('🌟',(MS-.5)*cs,(MS-.5)*cs+cs*.22);
+  ctx.fillText('🕊️',(mP.x+.5)*cs,(mP.y+.5)*cs+cs*.22);}
+function mv(d){const c=mG[mP.y][mP.x];let ok=false;
+  if(d==='u'&&!c.n&&mP.y>0){mP.y--;ok=true;}
+  else if(d==='d'&&!c.s&&mP.y<MS-1){mP.y++;ok=true;}
+  else if(d==='l'&&!c.w&&mP.x>0){mP.x--;ok=true;}
+  else if(d==='r'&&!c.e&&mP.x<MS-1){mP.x++;ok=true;}
+  if(ok){tone(375,'sine',.07,.09);drawMaze();}else tone(180,'square',.04,.05);
+  if(mP.x===MS-1&&mP.y===MS-1){ok2();toast('🌟 You found your way!');
+    setTimeout(()=>document.getElementById('b9').classList.remove('hi'),600);}}
+function ok2(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.32,.2,i*.09));}
+document.addEventListener('keydown',e=>{if(cur!==9)return;
+  const m={ArrowUp:'u',ArrowDown:'d',ArrowLeft:'l',ArrowRight:'r'};
+  if(m[e.key]){e.preventDefault();mv(m[e.key]);}});
+
+/* ════════ L10 PIANO ════════ */
+const PSEQ=['C4','E4','G4','C5','G4','E4','D4','C4'];
+const NF={C4:261,D4:293,E4:329,F4:349,G4:392,A4:440,B4:493,C5:523,'C#4':277,'D#4':311,'F#4':370};
+const WN=['C4','D4','E4','F4','G4','A4','B4','C5'];
+const BK={1:'C#4',2:'D#4',4:'F#4'};
+let pPr=0;
+function iPiano(){pPr=0;bldPiano();}
+function bldPiano(){const wrap=document.getElementById('pkeys');wrap.innerHTML='';
+  WN.forEach((note,i)=>{const k=document.createElement('div');k.className='wk'+(note===PSEQ[pPr]?' hl':'');
+    const lbl=document.createElement('span');lbl.className='wlbl';
+    lbl.textContent=note.replace('4','').replace('5','');k.appendChild(lbl);
+    k.onclick=()=>pressNote(note);
+    if(BK[i]){const bk=document.createElement('div');bk.className='bk';
+      bk.onclick=(e)=>{e.stopPropagation();pressNote(BK[i]);};k.appendChild(bk);}
+    wrap.appendChild(k);});}
+function pressNote(note){const freq=NF[note]||440;tone(freq,'sine',.42,.32);
+  const d=document.createElement('div');d.className='ndot';
+  d.style.cssText='width:16px;height:16px;background:'+['#9caf88','#d4a373','#f2b5c0','#c9c4e8','#d4eaf7','#f6c94e','#7ecec4'][Math.floor(Math.random()*7)]+';left:'+( 5+Math.random()*80)+'%';
+  document.getElementById('ntrl').appendChild(d);setTimeout(()=>d.remove(),750);
+  if(note===PSEQ[pPr]){pPr++;document.getElementById('p-msg').textContent=pPr>=8?'🎵 Beautiful!':'Play note '+(pPr+1)+' of 8';
+    if(pPr>=8){ok();toast('🎵 Your melody is complete!');setTimeout(()=>document.getElementById('b10').classList.remove('hi'),800);}
+    else setTimeout(bldPiano,180);}
+  else tone(190,'sawtooth',.09,.09);}
+
+/* ════════ L11 BALANCE ════════ */
+let bT=0,bH=0,bDir=0,bMov=null,bHold=null;
+function iBal(){bT=0;bH=0;updPlank();}
+function balP(d){bDir=d;clearInterval(bMov);
+  bMov=setInterval(()=>{bT=Math.max(-40,Math.min(40,bT+bDir*2.4));updPlank();},80);}
+function balR(){clearInterval(bMov);}
+function updPlank(){document.getElementById('plank').style.transform='rotate('+bT+'deg)';
+  tone(200+Math.abs(bT)*3.5,'sine',.035,.035);
+  if(Math.abs(bT)<=4){
+    if(!bHold)bHold=setInterval(()=>{bH+=.1;
+      document.getElementById('bal-msg').textContent='Hold '+bH.toFixed(1)+' / 10 s';
+      if(bH>=10){clearInterval(bHold);bHold=null;ok();toast('⚖️ Perfectly balanced!');
+        setTimeout(()=>document.getElementById('b11').classList.remove('hi'),800);}},100);}
+  else{clearInterval(bHold);bHold=null;}}
+
+/* ════════ L12 TRACE ════════ */
+let trDone=false;
+function iTrace(){trDone=false;
+  const svg=document.getElementById('trsvg');svg.innerHTML='';
+  const W=svg.clientWidth||290,H=svg.clientHeight||190;
+  const cx=W/2,cy=H/2,R=Math.min(W,H)*.36,r=R*.38;
+  const pts=[];
+  for(let i=0;i<5;i++){const a=(i*4*Math.PI/5)-Math.PI/2;pts.push([cx+R*Math.cos(a),cy+R*Math.sin(a)]);
+    const a2=((i*4+2)*Math.PI/5)-Math.PI/2;pts.push([cx+r*Math.cos(a2),cy+r*Math.sin(a2)]);}
+  const guide=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  guide.setAttribute('points',pts.map(p=>p.join(',')).join(' '));
+  guide.setAttribute('fill','rgba(156,175,136,.07)');guide.setAttribute('stroke','rgba(156,175,136,.38)');
+  guide.setAttribute('stroke-width','2');guide.setAttribute('stroke-dasharray','5,5');svg.appendChild(guide);
+  const fill=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  fill.setAttribute('points',pts.map(p=>p.join(',')).join(' '));
+  fill.setAttribute('fill','rgba(233,237,198,0)');fill.style.transition='fill .75s';svg.appendChild(fill);
+  pts.forEach((p,i)=>{if(i%2===0){const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',p[0]);t.setAttribute('y',p[1]+4);t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','rgba(74,78,105,.35)');t.setAttribute('font-size','10');
+    t.setAttribute('font-family','Quicksand,sans-serif');t.textContent=i/2+1;svg.appendChild(t);}});
+  let drawing=false,path=[];
+  const dl=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  dl.setAttribute('fill','none');dl.setAttribute('stroke','rgba(156,175,136,.8)');
+  dl.setAttribute('stroke-width','3');dl.setAttribute('stroke-linecap','round');svg.appendChild(dl);
+  function gpt(e){const r=svg.getBoundingClientRect();const s=e.touches?e.touches[0]:e;return[s.clientX-r.left,s.clientY-r.top];}
+  svg.onmousedown=svg.ontouchstart=(e)=>{e.preventDefault();drawing=true;path=[];};
+  svg.onmousemove=svg.ontouchmove=(e)=>{if(!drawing)return;e.preventDefault();
+    const p=gpt(e);path.push(p);dl.setAttribute('points',path.map(x=>x.join(',')).join(' '));
+    tone(400+path.length%18*14,'sine',.022,.055);};
+  svg.onmouseup=svg.ontouchend=()=>{if(!drawing||trDone)return;drawing=false;
+    if(path.length>38){trDone=true;fill.setAttribute('fill','rgba(233,237,198,.32)');
+      ok();toast('⭐ You are a star!');document.getElementById('tr-msg').textContent='Radiant!';
+      setTimeout(()=>document.getElementById('b12').classList.remove('hi'),800);}};}
+
+/* ════════ L13 LANTERNS ════════ */
+let lLit=0;
+function iLan(){lLit=0;const sky=document.getElementById('lsky');sky.innerHTML='';
+  for(let i=0;i<22;i++){const s=document.createElement('div');s.className='stw';
+    s.textContent='·';s.style.left=Math.random()*94+'%';s.style.top=Math.random()*58+'%';
+    s.style.animationDelay=Math.random()*2+'s';sky.appendChild(s);}}
+function lightLan(){if(lLit>=8)return;lLit++;
+  const sky=document.getElementById('lsky');
+  const l=document.createElement('div');l.className='lan';l.textContent='🏮';
+  l.style.left=(7+Math.random()*80)+'%';l.style.bottom='0';
+  const dur=3.4+Math.random()*2.2;l.style.animationDuration=dur+'s';
+  sky.appendChild(l);chord([440,554,659],.38);setTimeout(()=>l.remove(),(dur+.3)*1000);
+  document.getElementById('l-msg').textContent=lLit+' / 8 lanterns released';
+  if(lLit>=8){ok();toast('🏮 All worries released!');setTimeout(()=>document.getElementById('b13').classList.remove('hi'),1400);}}
+
+/* ════════ L14 PUZZLE ════════ */
+const PE=['🌸','🌊','⭐','🦋','🌈','🍀','🌙','🌺',''];
+let pg=[],pm=0;
+function iPuz(){pm=0;pg=[0,1,2,3,4,5,6,7,8];
+  for(let k=120;k--;){const bl=pg.indexOf(8);const nb=[];
+    if(bl%3>0)nb.push(bl-1);if(bl%3<2)nb.push(bl+1);if(bl>=3)nb.push(bl-3);if(bl<6)nb.push(bl+3);
+    const sw=nb[Math.floor(Math.random()*nb.length)];[pg[bl],pg[sw]]=[pg[sw],pg[bl]];}rPuz();}
+function rPuz(){const b=document.getElementById('pboard');b.innerHTML='';
+  pg.forEach((v,i)=>{const t=document.createElement('div');t.className='ptile'+(v===8?' empty':'');
+    t.textContent=v<8?PE[v]:'';t.onclick=()=>movT(i);b.appendChild(t);});
+  document.getElementById('pb-msg').textContent='Moves: '+pm;}
+function movT(idx){const bl=pg.indexOf(8);
+  const adj=[bl-1,bl+1,bl-3,bl+3].filter(i=>{if(i<0||i>8)return false;
+    if(bl%3===0&&i===bl-1)return false;if(bl%3===2&&i===bl+1)return false;return true;});
+  if(!adj.includes(idx))return;[pg[bl],pg[idx]]=[pg[idx],pg[bl]];pm++;clk();rPuz();
+  if(pg.join('')==='012345678'){ok();toast('🌸 The mosaic is complete!');
+    setTimeout(()=>document.getElementById('b14').classList.remove('hi'),700);}}
+
+/* ════════ L15 FINALE ════════ */
+function iFin(){const cv=document.getElementById('fin-cv');
+  cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;
+  const ctx=cv.getContext('2d');
+  const pts=Array.from({length:90},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    vx:(Math.random()-.5)*.35,vy:-(Math.random()*.55+.15),
+    r:Math.random()*2.2+.7,h:Math.random()*60+15,life:Math.random()}));
+  function frame(){ctx.fillStyle='rgba(250,237,205,.14)';ctx.fillRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life+=.0038;
+      if(p.y<0||p.life>1){p.y=cv.height;p.x=Math.random()*cv.width;p.life=0;}
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='hsla('+p.h+',55%,60%,'+Math.sin(p.life*Math.PI)*.65+')';ctx.fill();});
+    requestAnimationFrame(frame);}
+  frame();
+  setTimeout(()=>chord([523,659,784,1047],.8),100);
+  setTimeout(()=>chord([659,784,988,1318],.8),950);
+  setTimeout(()=>chord([784,988,1175,1568],.8),1750);}
+</script>
 </body>
-
 </html>
