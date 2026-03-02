@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>The Hard Road to Joy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage: #9caf88;
+            --clay: #d4a373;
+            --cream: #faedcd;
+            --sky: #d4eaf7;
+            --text: #4a4e69;
+            --danger: #e63946;
+            --success: #2a9d8f;
+            /* Use svh (Small Viewport Height) for mobile browser compatibility */
+            --app-height: 100svh;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Quicksand', sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: #12122b;
+            color: var(--text);
+            overflow: hidden;
+            height: var(--app-height);
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app-container {
+            width: 100%;
+            height: var(--app-height);
+            max-width: 500px;
+            background: #ffffff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        /* Desktop/Tablet styling */
+        @media (min-width: 501px) {
+            #app-container {
+                height: 92vh;
+                border-radius: 32px;
+                --app-height: 92vh;
+            }
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            padding: 24px;
+            padding-top: calc(24px + env(safe-area-inset-top));
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        header { margin-bottom: 12px; flex-shrink: 0; }
+        h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 6vw, 2rem); color: var(--sage); }
+        h2 { font-size: 0.75rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--clay); font-weight: 700; margin-bottom: 6px; }
+        p { font-size: clamp(0.9rem, 3.8vw, 1rem); line-height: 1.5; color: #666; max-width: 90%; }
+
+        .game-zone {
+            flex-grow: 1;
+            width: 100%;
+            background: #fdfdfd;
+            border-radius: 28px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f0f0f0;
+            touch-action: none;
+        }
+
+        .btn-container { width: 100%; padding-bottom: 10px; flex-shrink: 0; }
+        .btn {
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            border: none;
+            background: var(--sage);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(156, 175, 136, 0.3);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn:active { transform: scale(0.97); filter: brightness(0.95); }
+        .btn-secondary { background: white; color: var(--sage); border: 2px solid var(--sage); margin-top: 12px; box-shadow: none; }
+
+        /* Level Elements */
+        #breath-target { width: 180px; height: 180px; border: 4px dashed #e2e8f0; border-radius: 50%; position: absolute; }
+        #breath-circle { width: 40px; height: 40px; background: var(--sky); border-radius: 50%; transition: transform 0.05s linear; }
+
+        #joystick {
+            display: flex;
+            gap: 30px;
+            position: absolute;
+            bottom: 30px;
+        }
+        .joy-btn {
+            width: 70px; height: 70px; background: #fff; border: 3px solid var(--sage);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.8rem; color: var(--sage);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .joy-btn:active { background: var(--sage); color: white; }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin-top: 25px;
+        }
+        .level-dot {
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .level-dot.unlocked { background: var(--cream); color: var(--clay); border: 1px solid #faedcd; }
+        .level-dot.active { background: var(--sage); color: white; transform: scale(1.05); }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.98);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #timer-display { font-size: 1.2rem; font-weight: 700; color: var(--clay); margin-top: 10px; }
+
+        footer {
+            padding: 10px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            background: #ffffff;
+            width: 100%;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="fail-overlay" class="overlay">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🧘</div>
+        <h1>Gently Reset</h1>
+        <p>Your focus drifted. Return to the center.</p>
+        <div class="btn-container" style="margin-top: 40px;">
+            <button class="btn" onclick="retry()">TRY AGAIN</button>
+            <button class="btn btn-secondary" onclick="showScreen(0)">MENU</button>
+        </div>
+    </div>
+
+    <div class="screen active" id="s0">
+        <header>
+            <h2>The Inner Journey</h2>
+            <h1>Path of Joy</h1>
+        </header>
+        <p>A series of meditative challenges to sharpen your focus and calm your mind.</p>
+        <div class="level-grid" id="level-grid"></div>
+        <div class="btn-container" style="margin-top: auto;">
+            <button class="btn" id="continue-btn" onclick="startLatest()">BEGIN CLIMB</button>
+        </div>
+    </div>
+
+    <div class="screen" id="s1">
+        <header>
+            <h2>Step 01</h2>
+            <h1>Rhythmic Breath</h1>
+        </header>
+        <p>Hold the button to inhale. Release exactly when the inner circle fills the ring.</p>
+        <div class="game-zone">
+            <div id="breath-target"></div>
+            <div id="breath-circle"></div>
+        </div>
+        <div class="btn-container">
+            <button class="btn" id="breath-btn">HOLD TO BREATH</button>
+        </div>
+    </div>
+
+    <div class="screen" id="s11">
+        <header>
+            <h2>Step 11</h2>
+            <h1>Perfect Balance</h1>
+        </header>
+        <p>Use the buttons to keep the stone centered for 10 seconds.</p>
+        <div class="game-zone">
+            <div id="balance-track" style="width: 80%; height: 12px; background: #eee; border-radius: 10px; position: relative; border: 1px solid #ddd;">
+                <div id="stone" style="width: 34px; height: 34px; background: var(--clay); border-radius: 50%; position: absolute; top: -11px; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+            </div>
+            <div id="timer-display">TIME: 0.0s</div>
+            <div id="joystick">
+                <button class="joy-btn" id="left-btn">◀</button>
+                <button class="joy-btn" id="right-btn">▶</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="s14">
+        <div style="font-size: 5rem; margin-top: 20px;">✨</div>
+        <h1>Clarity Reached</h1>
+        <p>The road was hard, but your mind is now still. You have completed the journey.</p>
+        <button class="btn" onclick="location.reload()" style="margin-top: 60px;">RESTART PATH</button>
+    </div>
+
+    <footer>Made with ❤ by Pasindu</footer>
+</div>
+
+<script>
+    let currentLvl = 0;
+    let unlocked = parseInt(localStorage.getItem('joy_save_v3')) || 1;
+    let gameLoop;
+
+    function showScreen(num) {
+        clearInterval(gameLoop);
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('fail-overlay').style.display = 'none';
+        document.getElementById('s' + num).classList.add('active');
+        currentLvl = num;
+        initLevel(num);
+    }
+
+    function initHub() {
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+        for(let i=1; i<=13; i++) {
+            const div = document.createElement('div');
+            div.className = `level-dot ${i <= unlocked ? 'unlocked' : ''} ${i === unlocked ? 'active' : ''}`;
+            div.textContent = i;
+            if(i <= unlocked) div.onclick = () => showScreen(i);
+            grid.appendChild(div);
+        }
+        document.getElementById('continue-btn').textContent = unlocked > 1 ? `RESUME LEVEL ${unlocked}` : 'BEGIN JOURNEY';
+    }
+
+    function startLatest() { showScreen(unlocked); }
+    function retry() { showScreen(currentLvl); }
+    function fail() { 
+        document.getElementById('fail-overlay').style.display = 'flex'; 
+        clearInterval(gameLoop); 
+    }
+
+    function win() {
+        if(currentLvl === unlocked && unlocked < 13) {
+            unlocked++;
+            localStorage.setItem('joy_save_v3', unlocked);
+        }
+        // Logic to move to next level (skipping middle levels for demo purpose)
+        if(currentLvl === 1) showScreen(11);
+        else if(currentLvl === 11) showScreen(14);
+    }
+
+    function initLevel(n) {
+        if(n === 0) initHub();
+        if(n === 1) setupL1();
+        if(n === 11) setupL11();
+    }
+
+    // Level 1: Breath
+    function setupL1() {
+        const btn = document.getElementById('breath-btn');
+        const circle = document.getElementById('breath-circle');
+        let size = 40;
+        let active = false;
+
+        const start = (e) => { e.preventDefault(); active = true; };
+        const end = () => {
+            if(!active) return;
+            active = false;
+            // Target is roughly 180px
+            if(size >= 172 && size <= 192) win();
+            else fail();
+            size = 40;
+            circle.style.width = circle.style.height = '40px';
+        };
+
+        btn.onmousedown = btn.ontouchstart = start;
+        window.onmouseup = window.ontouchend = end;
+
+        gameLoop = setInterval(() => {
+            if(active) {
+                size += 1.4;
+                circle.style.width = circle.style.height = size + 'px';
+                if(size > 260) end();
+            }
+        }, 16);
+    }
+
+    // Level 11: Balance
+    function setupL11() {
+        const stone = document.getElementById('stone');
+        const timerTxt = document.getElementById('timer-display');
+        
+        // Reset state on initialization
+        let pos = 50;
+        let vel = 0;
+        let time = 0;
+        
+        stone.style.left = '50%';
+        timerTxt.textContent = `TIME: 0.0s / 10s`;
+
+        const setVel = (v) => { vel = v; };
+
+        document.getElementById('left-btn').onmousedown = 
+        document.getElementById('left-btn').ontouchstart = (e) => { e.preventDefault(); setVel(-0.9); };
+        document.getElementById('right-btn').onmousedown = 
+        document.getElementById('right-btn').ontouchstart = (e) => { e.preventDefault(); setVel(0.9); };
+        
+        window.onmouseup = window.ontouchend = () => setVel(0);
+
+        gameLoop = setInterval(() => {
+            // Natural drift
+            pos += vel + (Math.random() - 0.5) * 0.6;
+            stone.style.left = pos + '%';
+            
+            if(pos < 6 || pos > 94) fail();
+            
+            time += 0.016;
+            timerTxt.textContent = `TIME: ${time.toFixed(1)}s / 10s`;
+            if(time >= 10) win();
+        }, 16);
+    }
+
+    window.onload = initHub;
+</script>
+</body>
+</html>
